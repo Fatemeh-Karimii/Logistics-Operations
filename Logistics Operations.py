@@ -1,14 +1,13 @@
 import pulp as pl
 import pandas as pd
 
-
 c = [i for i in range(1, 21)]
 f = [j for j in range(1, 9)]
 m = [1, 2, 3]
 
 Model = pl.LpProblem('Transportation', pl.LpMinimize)
 
-# تعریف متعیرها
+# Definition of variables
 X1 = pl.LpVariable.dicts('X1' ,(c ,f ,m) ,lowBound=0 ,cat = 'Integer')
 A1 = pl.LpVariable.dicts('A1' ,(c ,f ,m) ,lowBound=0 ,cat = 'Integer')
 B1 = pl.LpVariable.dicts('B1' ,(c ,f ,m) ,lowBound=0 ,cat = 'Integer')
@@ -28,10 +27,10 @@ K2 = pl.LpVariable.dicts('K2' ,(c ,f) ,0 ,1 ,cat = 'Binary')
 K3 = pl.LpVariable.dicts('K3' ,(c ,f) ,0 ,1 ,cat = 'Binary')
 
 path = 'C:/Users/pc/Desktop/Danial/University/Term 4/او آر/پروژه/OR1 Project Data.xlsx'
-C1 = pd.read_excel(path, sheet_name = 'هزینه حمل ونقل بین c و f ')
-C2 = pd.read_excel(path, sheet_name = 'هزینه حمل ونقل بین m و f ')
-C3 = pd.read_excel(path, sheet_name = 'هزینه نصب یک واحدتجهیز در مرکزf')
-C4 = pd.read_excel(path, sheet_name = 'تقاضای مرجوعی ')
+C1 = pd.read_excel(path, sheet_name = 'Transportation cost between C,f')
+C2 = pd.read_excel(path, sheet_name = 'Transportation cost between m,f')
+C3 = pd.read_excel(path, sheet_name = 'Installing cost of an equipment')
+C4 = pd.read_excel(path, sheet_name = 'Return demand')
 
 C1.columns = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 del C1[0]
@@ -49,7 +48,7 @@ C4.columns = [0, 1, 2, 3]
 del C4[0]
 C4 = C4.set_index([pd.Index([i for i in range(1, 21)])])
 
-# تابع هدف
+# Objective function
 ans = 0
 for i in c:
     for j in f:
@@ -57,7 +56,7 @@ for i in c:
            ans += C1[j][i] * (2*(X1[i][j][k] +X2[i][j][k] +A1[i][j][k] +A2[i][j][k] +B1[i][j][k] +B2[i][j][k]) + 2*(X3[i][j] + A3[i][j] + B3[i][j])) + C2[k][j]*(X1[i][j][k] + X2[i][j][k] + A1[i][j][k] + A2[i][j][k] + B1[i][j][k] + B2[i][j][k]) + C3[1][j]*N[j]
 Model += ans
 
-# اختصاص مقادیر تقاضای مرجوعی به متعیرها
+# Assigning return demand values to variables
 for i in c:
     sum1 = 0
     sum2 = 0
@@ -75,7 +74,7 @@ for i in c:
     Model += sum2 == C4[2][i]
     Model += sum3 == C4[3][i]
     
-# محدودیت‌ها
+# constraints
 for i in c:
     for j in f:
         for k in m:
@@ -149,7 +148,7 @@ for j in f:
     Model += sum4 == 1
     Model += sum5 == 1
 
-# به دست آوردن جواب نهایی تابع هدف و متغیرها    
+# Obtain the final solution of the objective function and variables   
 A = []
 B = []
 
